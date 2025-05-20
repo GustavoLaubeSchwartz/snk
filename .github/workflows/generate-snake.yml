@@ -1,10 +1,16 @@
-name: Deploy GitHub Pages Snake
+name: Deploy Snake Animation
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - main  # ou o branch que você quer usar
+      - main  # ou o branch desejado
+
+permissions:
+  id-token: write       # ✅ necessário para autenticação com OIDC
+  pages: write          # ✅ necessário para fazer deploy no Pages
+  actions: read
+  contents: read
 
 jobs:
   build:
@@ -14,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Generate Snake
+      - name: Generate Snake SVGs
         uses: Platane/snk@v3
         with:
           github_user_name: ${{ github.repository_owner }}
@@ -22,7 +28,7 @@ jobs:
             ./output/github-contribution-grid-snake.svg
             ./output/github-contribution-grid-snake-dark.svg
 
-      - name: Upload Pages artifact
+      - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: './output'
@@ -31,7 +37,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: github-pages  # << OBRIGATÓRIO!
+      name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
